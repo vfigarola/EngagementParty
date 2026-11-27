@@ -88,6 +88,20 @@ textarea{min-height:110px;resize:vertical}
 .err{color:var(--red);font-size:14px;margin:6px 0 0;display:none}
 .field.bad .err{display:block}
 .field.bad input[type=text]{border-color:var(--red)}
+.label{font-weight:700;margin:0 0 8px}
+.opt{font-weight:400;color:var(--muted)}
+.person{background:#fff;border:1px solid #d9e3ea;border-radius:8px;padding:16px;margin-bottom:12px;display:grid;gap:14px}
+.p-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.p-title{font:400 22px/1.2 "Libre Bodoni",serif;color:var(--red);overflow-wrap:anywhere}
+.p-field>label{display:block;font-size:15px;font-weight:500;margin-bottom:6px}
+.p-field.bad .err{display:block}
+.p-field.bad input[type=text]{border-color:var(--red)}
+.person .choice span{background:var(--cream)}
+.remove{background:none;border:0;color:var(--muted);font:500 14px "Jost",sans-serif;text-decoration:underline;cursor:pointer;min-height:44px;padding:0 4px}
+.remove:hover{color:var(--red)}
+.add{width:100%;min-height:48px;background:transparent;border:1.5px dashed var(--red);border-radius:8px;color:var(--red);font:700 14px/1 "Jost",sans-serif;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.add:hover{background:#fbefec}
+.add:focus-visible,.remove:focus-visible{outline:2px solid var(--navy);outline-offset:3px}
 .hide{display:none}
 .submit{justify-self:center;margin-top:4px;min-width:200px}
 .submit[disabled]{opacity:.6;cursor:wait}
@@ -187,9 +201,8 @@ footer span{background:var(--cream);padding:6px 14px}
 
     <form id="rsvp-form" novalidate>
       <div class="field" id="f-name">
-        <label for="name">Full name</label>
-        <p class="hint">If multiple, include everyone.</p>
-        <input type="text" id="name" name="name" autocomplete="name">
+        <label for="name">Your full name</label>
+        <input type="text" id="name" autocomplete="name">
         <p class="err">Please enter your name.</p>
       </div>
 
@@ -202,20 +215,17 @@ footer span{background:var(--cream);padding:6px 14px}
         <p class="err">Please let us know if you can make it.</p>
       </fieldset>
 
-      <fieldset class="field hide" id="f-food">
-        <legend>Are you interested in Lobster or Meat BBQ?</legend>
-        <p class="hint">Select one or both.</p>
-        <div class="choices">
-          <label class="choice box"><input type="checkbox" name="food" value="Maine Lobster"><span>Maine Lobster</span></label>
-          <label class="choice box"><input type="checkbox" name="food" value="Meat BBQ"><span>Meat BBQ</span></label>
-        </div>
-        <p class="err">Please pick at least one.</p>
-      </fieldset>
+      <div class="field hide" id="f-people">
+        <p class="label">Are you interested in Lobster or Meat BBQ?</p>
+        <p class="hint">Select one or both for each person. Please include shellfish allergies.</p>
+        <div id="people"></div>
+        <button type="button" class="add" id="add-guest">+ Add guest/partner/kids</button>
+      </div>
 
-      <div class="field hide" id="f-diet">
-        <label for="diet">Any dietary restrictions or food allergies?</label>
-        <p class="hint">Please include shellfish allergies. If multiple people are under this RSVP, list food options if different.</p>
-        <textarea id="diet" name="diet"></textarea>
+      <div class="field hide" id="f-others">
+        <label for="others">Anyone else in your party who can't make it? <span class="opt">(optional)</span></label>
+        <p class="hint">Separate names with commas.</p>
+        <input type="text" id="others">
       </div>
 
       <button class="cta submit" type="submit" id="send">Send RSVP</button>
@@ -332,35 +342,71 @@ footer span{background:var(--cream);padding:6px 14px}
   };
   window.addEventListener('hashchange', show); show();
 
-  /* RSVP form */
+  /* RSVP form: one card per person, each saved as its own row */
   const form = document.getElementById('rsvp-form');
-  const val = n => (form.querySelector(`[name="${n}"]:checked`) || {}).value || '';
-  const fFood = document.getElementById('f-food'), fDiet = document.getElementById('f-diet');
+  const nameEl = document.getElementById('name');
+  const people = document.getElementById('people');
+  const fPeople = document.getElementById('f-people'), fOthers = document.getElementById('f-others');
+  const attending = () => (form.querySelector('[name="attending"]:checked') || {}).value || '';
+  let uid = 0;
+  const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  const addPerson = isGuest => {
+    const id = ++uid, el = document.createElement('div');
+    el.className = 'person'; el.dataset.guest = isGuest ? '1' : '';
+    el.innerHTML = `
+      <div class="p-head"><span class="p-title">${isGuest ? 'Guest/Partner/Kids Names' : esc(nameEl.value.trim() || 'You')}</span>
+        ${isGuest ? '<button type="button" class="remove">Remove</button>' : ''}</div>
+      ${isGuest ? `<div class="p-field"><label for="gn${id}">Full name</label><input type="text" id="gn${id}" class="g-name"><p class="err">Please enter a name.</p></div>` : ''}
+      <div class="p-field food"><div class="choices">
+        <label class="choice box"><input type="checkbox" value="Maine Lobster"><span>Maine Lobster</span></label>
+        <label class="choice box"><input type="checkbox" value="Meat BBQ"><span>Meat BBQ</span></label>
+      </div><p class="err">Please pick at least one.</p></div>
+      <div class="p-field"><label for="dt${id}">Dietary restrictions or allergies <span class="opt">(optional)</span></label><input type="text" id="dt${id}" class="g-diet"></div>`;
+    people.appendChild(el);
+    if (isGuest) el.querySelector('.g-name').focus();
+  };
+  addPerson(false);
+
+  nameEl.addEventListener('input', () => {
+    document.getElementById('f-name').classList.remove('bad');
+    people.querySelector('.person .p-title').textContent = nameEl.value.trim() || 'You';
+  });
+  document.getElementById('add-guest').addEventListener('click', () => addPerson(true));
+  people.addEventListener('click', e => { if (e.target.classList.contains('remove')) e.target.closest('.person').remove(); });
   form.addEventListener('change', e => {
     if (e.target.name === 'attending') {
-      const yes = val('attending') === 'Yes';
-      fFood.classList.toggle('hide', !yes); fDiet.classList.toggle('hide', !yes);
+      const yes = attending() === 'Yes';
+      fPeople.classList.toggle('hide', !yes); fOthers.classList.toggle('hide', yes);
+      document.getElementById('f-attend').classList.remove('bad');
     }
-    const f = e.target.closest('.field'); if (f) f.classList.remove('bad');
+    const f = e.target.closest('.p-field, .field'); if (f) f.classList.remove('bad');
   });
-  document.getElementById('name').addEventListener('input', () => document.getElementById('f-name').classList.remove('bad'));
+  people.addEventListener('input', e => { const f = e.target.closest('.p-field'); if (f) f.classList.remove('bad'); });
 
   const btn = document.getElementById('send'), sendErr = document.getElementById('send-err');
   form.addEventListener('submit', async e => {
     e.preventDefault();
-    const name = document.getElementById('name').value.trim();
-    const attending = val('attending'), food = [...form.querySelectorAll('[name="food"]:checked')].map(i => i.value).join(', ');
+    const name = nameEl.value.trim(), att = attending();
     let ok = true;
     if (!name) { document.getElementById('f-name').classList.add('bad'); ok = false; }
-    if (!attending) { document.getElementById('f-attend').classList.add('bad'); ok = false; }
-    if (attending === 'Yes' && !food) { fFood.classList.add('bad'); ok = false; }
+    if (!att) { document.getElementById('f-attend').classList.add('bad'); ok = false; }
+    let guests = [];
+    if (att === 'Yes') {
+      people.querySelectorAll('.person').forEach(p => {
+        const gName = p.dataset.guest ? p.querySelector('.g-name').value.trim() : name;
+        const food = [...p.querySelectorAll('.food input:checked')].map(i => i.value).join(', ');
+        if (p.dataset.guest && !gName) { p.querySelector('.g-name').closest('.p-field').classList.add('bad'); ok = false; }
+        if (!food) { p.querySelector('.food').classList.add('bad'); ok = false; }
+        guests.push({ name: gName, food, diet: p.querySelector('.g-diet').value.trim() });
+      });
+    } else if (att === 'No') {
+      guests = [name, ...document.getElementById('others').value.split(',').map(s => s.trim()).filter(Boolean)]
+        .map(n => ({ name: n, food: '', diet: '' }));
+    }
     if (!ok) { form.querySelector('.bad').scrollIntoView({behavior:'smooth',block:'center'}); return; }
 
-    const data = new URLSearchParams({
-      name, attending,
-      food: attending === 'Yes' ? food : '',
-      diet: attending === 'Yes' ? document.getElementById('diet').value.trim() : ''
-    });
+    const data = new URLSearchParams({ party: name, attending: att, guests: JSON.stringify(guests) });
     btn.disabled = true; btn.textContent = 'Sending…'; sendErr.style.display = 'none';
     let preview = !RSVP_ENDPOINT, failed = false;
     try {
@@ -369,22 +415,22 @@ footer span{background:var(--cream);padding:6px 14px}
       /* the claude.ai preview blocks outside requests, so treat that as preview mode */
       if (/github\.io$/.test(location.hostname)) failed = true; else preview = true;
     }
+    btn.disabled = false; btn.textContent = 'Send RSVP';
     if (failed) {
-      btn.disabled = false; btn.textContent = 'Send RSVP';
       sendErr.textContent = 'Something went wrong sending your RSVP. Please try again.';
       sendErr.style.display = 'block'; return;
     }
-    btn.disabled = false; btn.textContent = 'Send RSVP';
-    const first = name.split(/[ ,&]/)[0];
-    document.getElementById('thanks-title').textContent = attending === 'Yes' ? 'See you in Maine!' : 'We’ll miss you!';
-    document.getElementById('thanks-msg').textContent = attending === 'Yes'
-      ? `Thanks, ${first}! We can't wait to celebrate with you on July 24.`
+    const first = name.split(/[ ,&]/)[0], n = guests.length;
+    document.getElementById('thanks-title').textContent = att === 'Yes' ? 'See you in Maine!' : 'We’ll miss you!';
+    document.getElementById('thanks-msg').textContent = att === 'Yes'
+      ? `Thanks, ${first}! We have you down for ${n} ${n === 1 ? 'person' : 'people'} and can't wait to celebrate with you on July 24.`
       : `Thanks for letting us know, ${first}. You'll be with us in spirit!`;
     document.getElementById('preview-note').classList.toggle('hide', !preview);
     form.classList.add('hide'); document.getElementById('thanks').classList.remove('hide');
   });
   document.getElementById('again').addEventListener('click', () => {
-    form.reset(); fFood.classList.add('hide'); fDiet.classList.add('hide');
+    form.reset(); people.innerHTML = ''; addPerson(false);
+    fPeople.classList.add('hide'); fOthers.classList.add('hide');
     form.classList.remove('hide'); document.getElementById('thanks').classList.add('hide');
   });
 }
