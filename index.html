@@ -82,6 +82,8 @@ textarea{min-height:110px;resize:vertical}
 .choice span{display:flex;align-items:center;gap:10px;min-height:52px;padding:12px 16px;border:1px solid #c9d6e0;border-radius:6px;background:#fff}
 .choice span::before{content:"";flex:none;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--navy);background:#fff}
 .choice input:checked+span{border-color:var(--red);background:#fbefec}
+.choice.box span::before{border-radius:4px}
+.choice.box input:checked+span::before{background:var(--red) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E") center/14px no-repeat}
 .choice input:checked+span::before{border-color:var(--red);background:radial-gradient(var(--red) 0 45%,#fff 50%)}
 .err{color:var(--red);font-size:14px;margin:6px 0 0;display:none}
 .field.bad .err{display:block}
@@ -202,11 +204,12 @@ footer span{background:var(--cream);padding:6px 14px}
 
       <fieldset class="field hide" id="f-food">
         <legend>Are you interested in Lobster or Meat BBQ?</legend>
+        <p class="hint">Select one or both.</p>
         <div class="choices">
-          <label class="choice"><input type="radio" name="food" value="Maine Lobster"><span>Maine Lobster</span></label>
-          <label class="choice"><input type="radio" name="food" value="Meat BBQ"><span>Meat BBQ</span></label>
+          <label class="choice box"><input type="checkbox" name="food" value="Maine Lobster"><span>Maine Lobster</span></label>
+          <label class="choice box"><input type="checkbox" name="food" value="Meat BBQ"><span>Meat BBQ</span></label>
         </div>
-        <p class="err">Please pick one.</p>
+        <p class="err">Please pick at least one.</p>
       </fieldset>
 
       <div class="field hide" id="f-diet">
@@ -346,7 +349,7 @@ footer span{background:var(--cream);padding:6px 14px}
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const name = document.getElementById('name').value.trim();
-    const attending = val('attending'), food = val('food');
+    const attending = val('attending'), food = [...form.querySelectorAll('[name="food"]:checked')].map(i => i.value).join(', ');
     let ok = true;
     if (!name) { document.getElementById('f-name').classList.add('bad'); ok = false; }
     if (!attending) { document.getElementById('f-attend').classList.add('bad'); ok = false; }
