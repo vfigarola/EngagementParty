@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pinch Us, We're Engaged</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,600;1,400;1,700&family=Jost:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/*
+VOICE: a seaside lobster-bake invitation — warm, a little playful, unfussy
+IDEA: the Canva invitation card itself — cream card, thin red frame, on a blue-and-white awning stripe
+PICTURE: the red line-drawn lobster from the invitation, large on Home
+COLOUR and TYPE: stripe #BBD0E0, cream #FFFCF5, lobster red #B83B39, harbor navy #294D65; Libre Bodoni + Jost
+LAYOUT: striped ground, one centered card per tab, tab bar on top, stacks naturally on phones
+*/
+:root{
+  --stripe:#BBD0E0; --cream:#FFFCF5; --red:#B83B39; --navy:#294D65; --muted:#5d7385; --line:#e6d9cf;
+  color-scheme:light;
+}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:80px}
+body{
+  margin:0; color:var(--navy); font:16px/1.6 "Jost",system-ui,sans-serif; overflow-x:clip;
+  background:repeating-linear-gradient(90deg,var(--stripe) 0 14px,#fff 14px 28px);
+  min-height:100vh;
+}
+a{color:var(--navy);text-decoration-color:rgba(41,77,101,.45);text-underline-offset:3px}
+a:hover{color:var(--red)}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:5;background:var(--cream);border-bottom:1px solid var(--red);box-shadow:0 2px 0 rgba(41,77,101,.06)}
+.nav-in{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:8px;padding:8px max(4vw,12px);overflow-x:auto;scrollbar-width:none}
+.nav-in::-webkit-scrollbar{display:none}
+.brand{font:italic 700 20px/1 "Libre Bodoni",serif;color:var(--red);text-decoration:none;margin-right:auto;white-space:nowrap;padding-right:12px}
+.tab{flex:none;font:500 14px/1 "Jost",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--navy);text-decoration:none;padding:13px 12px;border-radius:999px;min-height:44px;display:flex;align-items:center}
+.tab[aria-current=page]{background:var(--red);color:var(--cream)}
+.tab.rsvp:not([aria-current=page]){border:1px solid var(--red);color:var(--red)}
+
+/* card */
+main{padding:clamp(20px,5vw,56px) max(4vw,12px) 64px}
+.card{max-width:640px;margin:0 auto;background:var(--cream);padding:clamp(10px,2vw,14px);box-shadow:0 10px 30px rgba(41,77,101,.14)}
+.frame{border:1px solid var(--red);padding:clamp(28px,6vw,56px) clamp(20px,6vw,56px)}
+.view{display:none;animation:rise .45s ease both}
+.view.on{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.view{animation:none}}
+
+.kicker{font:700 12px/1.3 "Jost",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--navy);text-align:center;margin:0 0 14px}
+h1,h2{font-family:"Libre Bodoni",serif;font-style:italic;font-weight:700;color:var(--red);text-align:center;margin:0;line-height:1.05;text-wrap:balance}
+h1{font-size:clamp(44px,9vw,64px)}
+h2{font-size:clamp(36px,7vw,50px)}
+h3{font:400 clamp(24px,4vw,28px)/1.15 "Libre Bodoni",serif;color:var(--red);margin:30px 0 6px}
+.rule{display:flex;align-items:center;justify-content:center;gap:0;margin:18px auto 26px;width:110px}
+.rule::before,.rule::after{content:"";flex:1;height:1px;background:var(--red)}
+.rule i{width:5px;height:5px;border-radius:50%;background:var(--red)}
+p{margin:0 0 12px}
+b,strong{font-weight:700}
+
+/* home */
+.home{text-align:center}
+.lobster{width:clamp(110px,26vw,150px);height:auto;display:block;margin:6px auto 18px}
+.names{font:400 clamp(30px,6vw,40px)/1.1 "Libre Bodoni",serif;color:var(--navy);margin:12px 0 0}
+.when{font:700 clamp(22px,4.6vw,28px)/1.3 "Jost",sans-serif;margin:0}
+.where{color:var(--muted);margin:18px 0 0}
+.cta{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 28px;margin-top:28px;background:var(--red);color:var(--cream);font:700 14px/1 "Jost",sans-serif;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border-radius:999px;border:0;cursor:pointer}
+.cta:hover{background:#9c2f2d;color:var(--cream)}
+.cta:focus-visible,.tab:focus-visible,input:focus-visible,textarea:focus-visible,.choice input:focus-visible+span{outline:2px solid var(--navy);outline-offset:3px}
+.deadline{font:700 13px/1.4 "Jost",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-top:22px}
+
+/* rsvp */
+form{display:grid;gap:22px;margin-top:4px}
+.field>label,.field>legend{display:block;font-weight:700;margin-bottom:8px;padding:0}
+fieldset{border:0;margin:0;padding:0}
+.hint{font-size:14px;color:var(--muted);margin:-4px 0 8px}
+input[type=text],textarea{width:100%;font:16px/1.5 "Jost",sans-serif;color:var(--navy);background:#fff;border:1px solid #c9d6e0;border-radius:6px;padding:12px 14px}
+textarea{min-height:110px;resize:vertical}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.choice{position:relative;cursor:pointer}
+.choice input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.choice span{display:flex;align-items:center;gap:10px;min-height:52px;padding:12px 16px;border:1px solid #c9d6e0;border-radius:6px;background:#fff}
+.choice span::before{content:"";flex:none;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--navy);background:#fff}
+.choice input:checked+span{border-color:var(--red);background:#fbefec}
+.choice input:checked+span::before{border-color:var(--red);background:radial-gradient(var(--red) 0 45%,#fff 50%)}
+.err{color:var(--red);font-size:14px;margin:6px 0 0;display:none}
+.field.bad .err{display:block}
+.field.bad input[type=text]{border-color:var(--red)}
+.hide{display:none}
+.submit{justify-self:center;margin-top:4px;min-width:200px}
+.submit[disabled]{opacity:.6;cursor:wait}
+.thanks{text-align:center;padding:10px 0}
+.thanks .lobster{width:90px}
+.note{font-size:13px;color:var(--muted);text-align:center;margin-top:14px}
+
+/* info lists */
+.glance{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:0}
+.glance li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.glance li:first-child{border-top:1px solid var(--line)}
+.glance .t{font:400 22px/1.2 "Libre Bodoni",serif;color:var(--red)}
+.glance .d{font-weight:700;white-space:nowrap;text-align:right;align-self:center}
+.glance .b{grid-column:1/-1;color:var(--muted);font-size:15px}
+.small{font-size:14px;color:var(--muted);font-style:italic;text-align:center;margin-top:16px}
+.cols{columns:2 220px;column-gap:28px;padding-left:18px;margin:6px 0 16px}
+.cols li{break-inside:avoid;margin-bottom:2px}
+.area{margin:0 0 12px}
+.area b{color:var(--navy)}
+.also{font:400 clamp(22px,4vw,26px)/1.2 "Libre Bodoni",serif;color:var(--red);text-align:center;margin-top:28px}
+.todo h3{margin-top:24px}
+.todo p{margin:0}
+.sub{font:700 12px/1.3 "Jost",sans-serif;letter-spacing:.2em;text-transform:uppercase;text-align:center;margin:40px 0 0;color:var(--navy)}
+.know p{margin-bottom:18px}
+footer{text-align:center;margin-top:28px;font:italic 400 16px/1.4 "Libre Bodoni",serif;color:var(--navy)}
+footer span{background:var(--cream);padding:6px 14px}
+@media(max-width:600px){.brand{font-size:18px}.glance .t{font-size:20px}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="lob" viewBox="144 70 82 96">
+    <g fill="#B83B39">
+      <path d="M159.5,110.86C146.58,106.78 146.58,96.24 159.5,79.24C163.58,85.36 163.58,90.8 159.5,95.56C167.66,93.52 171.06,88.08 169.7,79.24C177.18,94.88 173.78,105.42 159.5,110.86"/>
+      <path d="M177.32,118.75L166.1,121.81C165.26,122.04 164.37,121.64 163.97,120.86L157.85,108.62C157.4,107.71 157.76,106.61 158.67,106.16C159.58,105.71 160.68,106.07 161.13,106.98L167.25,119.22L165.61,120.04L165.13,118.27L176.35,115.21C177.33,114.94 178.34,115.52 178.6,116.5C178.86,117.48 178.29,118.49 177.31,118.75Z"/>
+      <path d="M178.03,123.77L169.87,125.81L169.7,125.14L170.15,125.66L161.99,132.8C161.7,133.05 161.27,133.02 161.02,132.74C160.77,132.46 160.8,132.02 161.08,131.77L169.24,124.63C169.32,124.56 169.42,124.51 169.53,124.48L177.69,122.44C178.06,122.35 178.43,122.57 178.52,122.94C178.61,123.31 178.39,123.68 178.02,123.77Z"/>
+      <path d="M178.01,127.85L168.83,129.89L168.68,129.22L169.13,129.74L160.97,136.88C160.68,137.13 160.25,137.1 160,136.82C159.75,136.54 159.78,136.1 160.06,135.85L168.22,128.71C168.31,128.63 168.41,128.58 168.52,128.56L177.7,126.52C178.07,126.44 178.44,126.67 178.52,127.04C178.6,127.41 178.37,127.78 178,127.86Z"/>
+      <path d="M178,131.94L167.8,133.98L167.66,133.3L168.11,133.82L159.95,140.96C159.66,141.21 159.23,141.18 158.98,140.9C158.73,140.62 158.76,140.18 159.04,139.93L167.2,132.79C167.29,132.71 167.4,132.66 167.52,132.63L177.72,130.59C178.09,130.52 178.46,130.76 178.53,131.13C178.6,131.5 178.36,131.87 177.99,131.94Z"/>
+      <path d="M177.98,136.02L166.76,138.06L166.64,137.38L167.09,137.9L158.93,145.04C158.64,145.29 158.21,145.26 157.96,144.98C157.71,144.7 157.74,144.26 158.02,144.01L166.18,136.87C166.27,136.79 166.39,136.73 166.51,136.71L177.73,134.67C178.1,134.6 178.46,134.85 178.53,135.22C178.6,135.59 178.35,135.95 177.98,136.02Z"/>
+      <path d="M181.41,104.82C179.37,91.24 176.66,81.1 173.3,74.38C173.17,74.12 173.27,73.79 173.54,73.66C173.81,73.53 174.13,73.63 174.26,73.9C177.7,80.78 180.43,91.04 182.47,104.66C182.51,104.95 182.31,105.23 182.02,105.27C181.73,105.31 181.45,105.11 181.41,104.82Z"/>
+      <path d="M210.5,110.86C223.42,106.78 223.42,96.24 210.5,79.24C206.42,85.36 206.42,90.8 210.5,95.56C202.34,93.52 198.94,88.08 200.3,79.24C192.82,94.88 196.22,105.42 210.5,110.86"/>
+      <path d="M193.64,115.21L204.86,118.27L204.38,120.04L202.74,119.22L208.86,106.98C209.31,106.07 210.42,105.71 211.32,106.16C212.22,106.61 212.59,107.72 212.14,108.62L206.02,120.86C205.63,121.64 204.74,122.04 203.89,121.81L192.67,118.75C191.69,118.48 191.11,117.47 191.38,116.5C191.65,115.53 192.66,114.94 193.63,115.21Z"/>
+      <path d="M192.31,122.43L200.47,124.47C200.58,124.5 200.67,124.55 200.76,124.62L208.92,131.76C209.21,132.01 209.24,132.45 208.98,132.73C208.72,133.01 208.29,133.05 208.01,132.79L199.85,125.65L200.3,125.13L200.13,125.8L191.97,123.76C191.6,123.67 191.38,123.29 191.47,122.93C191.56,122.57 191.94,122.34 192.3,122.43Z"/>
+      <path d="M192.29,126.51L201.47,128.55C201.58,128.58 201.69,128.63 201.77,128.7L209.93,135.84C210.22,136.09 210.25,136.53 209.99,136.81C209.73,137.09 209.3,137.13 209.02,136.87L200.86,129.73L201.31,129.21L201.16,129.88L191.98,127.84C191.61,127.76 191.37,127.39 191.46,127.02C191.55,126.65 191.91,126.41 192.28,126.5Z"/>
+      <path d="M192.28,130.58L202.48,132.62C202.6,132.64 202.71,132.7 202.8,132.78L210.96,139.92C211.25,140.17 211.28,140.61 211.02,140.89C210.76,141.17 210.33,141.21 210.05,140.95L201.89,133.81L202.34,133.29L202.2,133.97L192,131.93C191.63,131.86 191.39,131.49 191.46,131.12C191.53,130.75 191.9,130.51 192.27,130.58Z"/>
+      <path d="M192.26,134.66L203.48,136.7C203.6,136.72 203.72,136.78 203.81,136.86L211.97,144C212.26,144.25 212.29,144.69 212.03,144.97C211.77,145.25 211.34,145.29 211.06,145.03L202.9,137.89L203.35,137.37L203.23,138.05L192.01,136.01C191.64,135.94 191.39,135.58 191.46,135.21C191.53,134.84 191.89,134.59 192.26,134.66Z"/>
+      <path d="M187.53,104.66C189.57,91.04 192.3,80.78 195.74,73.9C195.87,73.64 196.19,73.53 196.46,73.66C196.73,73.79 196.83,74.11 196.7,74.38C193.34,81.1 190.63,91.24 188.59,104.82C188.55,105.11 188.27,105.31 187.98,105.27C187.69,105.23 187.49,104.95 187.53,104.66Z"/>
+      <path d="M194.18,117.49C194.18,108.2 190.07,100.66 185,100.66C179.93,100.66 175.82,108.2 175.82,117.49C175.82,126.78 179.93,134.32 185,134.32C190.07,134.32 194.18,126.78 194.18,117.49Z"/>
+      <path d="M193.16,135.9C193.16,134.52 189.51,133.4 185,133.4C180.49,133.4 176.84,134.52 176.84,135.9C176.84,137.28 180.49,138.4 185,138.4C189.51,138.4 193.16,137.28 193.16,135.9Z"/>
+      <path d="M192.51,139.17C192.51,137.79 189.15,136.67 185,136.67C180.85,136.67 177.49,137.79 177.49,139.17C177.49,140.55 180.85,141.67 185,141.67C189.15,141.67 192.51,140.55 192.51,139.17Z"/>
+      <path d="M191.85,142.43C191.85,141.05 188.78,139.93 185,139.93C181.22,139.93 178.15,141.05 178.15,142.43C178.15,143.81 181.22,144.93 185,144.930C188.78,144.93 191.85,143.81 191.85,142.43Z"/>
+      <path d="M191.2,145.69C191.2,144.31 188.42,143.19 185,143.19C181.58,143.19 178.8,144.31 178.8,145.69C178.8,147.07 181.58,148.19 185,148.19C188.42,148.19 191.2,147.07 191.2,145.69Z"/>
+      <path d="M190.55,148.96C190.55,147.58 188.07,146.46 185,146.46C181.93,146.46 179.45,147.58 179.45,148.96C179.45,150.34 181.93,151.46 185,151.46C188.07,151.46 190.55,150.34 190.55,148.96Z"/>
+      <path d="M189.9,152.22C189.9,150.84 187.71,149.72 185,149.72C182.29,149.72 180.1,150.84 180.1,152.22C180.1,153.6 182.29,154.72 185,154.72C187.71,154.72 189.9,153.6 189.9,152.22Z"/>
+      <path d="M184.89,158.49C187.19,155.64 187.82,152.33 186.28,151.09C184.74,149.85 181.64,151.15 179.34,154C177.04,156.85 176.41,160.16 177.95,161.4C179.49,162.64 182.59,161.34 184.89,158.49Z"/>
+      <path d="M188.57,157.27C188.57,153.61 186.97,150.64 185,150.64C183.03,150.64 181.43,153.61 181.43,157.27C181.43,160.93 183.030,163.9 185,163.9C186.97,163.9 188.57,160.93 188.57,157.27Z"/>
+      <path d="M190.66,154C188.36,151.15 185.25,149.85 183.72,151.09C182.19,152.33 182.81,155.64 185.11,158.49C187.41,161.34 190.52,162.64 192.05,161.4C193.58,160.16 192.96,156.85 190.66,154Z"/>
+    </g>
+  </symbol>
+</svg>
+
+<nav class="nav" aria-label="Sections">
+  <div class="nav-in">
+    <a class="brand" href="#home">Dylan &amp; Victoria</a>
+    <a class="tab" href="#home" data-v="home">Home</a>
+    <a class="tab rsvp" href="#rsvp" data-v="rsvp">RSVP</a>
+    <a class="tab" href="#travel" data-v="travel">Travel</a>
+    <a class="tab" href="#stay" data-v="stay">Where to Stay</a>
+    <a class="tab" href="#todo" data-v="todo">Things to Do</a>
+    <a class="tab" href="#know" data-v="know">Good to Know</a>
+  </div>
+</nav>
+
+<main>
+<div class="card"><div class="frame">
+
+  <!-- HOME -->
+  <section class="view home" id="v-home">
+    <p class="kicker">You're invited to a lobster bake</p>
+    <svg class="lobster" role="img" aria-label="Lobster illustration"><use href="#lob"/></svg>
+    <h1>Pinch us,<br>we're engaged!</h1>
+    <p class="names">Dylan &amp; Victoria</p>
+    <div class="rule"><i></i></div>
+    <p class="when">Saturday, July 24, 2027<br>at 1 pm</p>
+    <p class="where">1296 Bayside Rd<br>Trenton, Maine 04605</p>
+    <a class="cta" href="#rsvp">RSVP</a>
+    <p class="deadline">RSVP by June 1, 2027</p>
+  </section>
+
+  <!-- RSVP -->
+  <section class="view" id="v-rsvp">
+    <p class="kicker">Kindly reply</p>
+    <h2>RSVP</h2>
+    <div class="rule"><i></i></div>
+    <p style="text-align:center"><b>Please RSVP by June 1, 2027</b></p>
+
+    <form id="rsvp-form" novalidate>
+      <div class="field" id="f-name">
+        <label for="name">Full name</label>
+        <p class="hint">If multiple, include everyone.</p>
+        <input type="text" id="name" name="name" autocomplete="name">
+        <p class="err">Please enter your name.</p>
+      </div>
+
+      <fieldset class="field" id="f-attend">
+        <legend>Will you join us?</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="attending" value="Yes"><span>Yes, I will be there!</span></label>
+          <label class="choice"><input type="radio" name="attending" value="No"><span>No, I cannot make it</span></label>
+        </div>
+        <p class="err">Please let us know if you can make it.</p>
+      </fieldset>
+
+      <fieldset class="field hide" id="f-food">
+        <legend>Are you interested in Lobster or Meat BBQ?</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="food" value="Maine Lobster"><span>Maine Lobster</span></label>
+          <label class="choice"><input type="radio" name="food" value="Meat BBQ"><span>Meat BBQ</span></label>
+        </div>
+        <p class="err">Please pick one.</p>
+      </fieldset>
+
+      <div class="field hide" id="f-diet">
+        <label for="diet">Any dietary restrictions or food allergies?</label>
+        <p class="hint">Please include shellfish allergies. If multiple people are under this RSVP, list food options if different.</p>
+        <textarea id="diet" name="diet"></textarea>
+      </div>
+
+      <button class="cta submit" type="submit" id="send">Send RSVP</button>
+      <p class="err" id="send-err" style="text-align:center"></p>
+    </form>
+
+    <div class="thanks hide" id="thanks" aria-live="polite">
+      <svg class="lobster" aria-hidden="true"><use href="#lob"/></svg>
+      <h2 id="thanks-title">Thank you!</h2>
+      <div class="rule"><i></i></div>
+      <p id="thanks-msg"></p>
+      <button class="cta" type="button" id="again" style="background:transparent;color:var(--red);border:1px solid var(--red)">Submit another RSVP</button>
+      <p class="note hide" id="preview-note">Preview mode: this RSVP was not saved. It will go to the Google Sheet once the site is live on GitHub.</p>
+    </div>
+  </section>
+
+  <!-- TRAVEL -->
+  <section class="view" id="v-travel">
+    <p class="kicker">Engagement weekend</p>
+    <h2>Travel details</h2>
+    <div class="rule"><i></i></div>
+    <h3 style="margin-top:0">Getting here</h3>
+    <p>We recommend flying into <b>Bangor Airport (BGR)</b>, it's about a 1 hour drive to Bar Harbor area. You can also fly into <b>Portland (PWM)</b>, about 3 hours or <b>Boston (BOS)</b>, about 4.5-5 hours.</p>
+    <p>Plan on <b>renting a car</b> and booking it early. Lodging is spread out, and taxis and rideshares can be hard to find, especially at night.</p>
+
+    <h3>Where to stay at a glance</h3>
+    <ul class="glance" id="glance"></ul>
+    <p class="small">Drive times are approximate. Allow extra time on July weekends.</p>
+  </section>
+
+  <!-- STAY -->
+  <section class="view" id="v-stay">
+    <p class="kicker">Engagement weekend</p>
+    <h2>Where to stay</h2>
+    <div class="rule"><i></i></div>
+    <h3 style="margin-top:0">On Mount Desert Island</h3>
+    <p class="area"><b>Bar Harbor:</b> our pick for most guests. Stay downtown to walk to dinner, ice cream, and the harbor. Below are some options!</p>
+    <ul class="cols">
+      <li>Bar Harbor Inn &amp; Spa</li><li>West Street Hotel</li><li>Harborside Hotel</li><li>Yellow House Inn</li><li>Bar Harbor Manor</li><li>The Inn on Mount Desert</li><li>Bar Harbor Grand Hotel</li>
+      <li>The Primrose</li><li>Canterbury Suites B&amp;B</li><li>Anchorage Motel</li><li>Acadia Inn</li><li>Holiday Inn Resort Bar Harbor</li><li>Acadia Ocean View Hotel</li>
+    </ul>
+    <p class="area"><b>North Mount Desert Island:</b> Look for cottages, motels, and rentals in Hulls Cove, Salisbury Cove, and Town Hill.</p>
+    <p class="area"><b>Northeast Harbor:</b> A quiet sailing village with fewer dinner options. For a splurge, look at The Asticou and ask about a harbor-view room.</p>
+    <p class="area"><b>Southwest Harbor and Bass Harbor:</b> Explore the island's quiet side. The Claremont for a waterfront stay or cottages in Bernard and Bass Harbor.</p>
+
+    <h3>On the Mainland</h3>
+    <p class="area"><b>Trenton:</b> Acadia Oceanfront Garden Cottages, Isleview Motel and Cottages, Acadia Gateway Motel and Cottages, Acadia Sunrise Motel, Open Hearth Inn</p>
+    <p class="area"><b>Ellsworth:</b> Hampton Inn, Home2 Suites, Comfort Inn, Hawthorn Extended Stay, Acadia Village Resort</p>
+    <p class="also">Also check out Airbnb/Vrbo!</p>
+  </section>
+
+  <!-- THINGS TO DO -->
+  <section class="view todo" id="v-todo">
+    <h2>Things to do</h2>
+    <div class="rule"><i></i></div>
+    <div id="todo-list"></div>
+  </section>
+
+  <!-- GOOD TO KNOW -->
+  <section class="view know" id="v-know">
+    <p class="kicker">Engagement weekend</p>
+    <h2>Things to Know</h2>
+    <div class="rule"><i></i></div>
+    <p><b>Book early!</b> July is peak season around Acadia.</p>
+    <p><b>Plan your ride home:</b> Taxis and rideshares can be scarce. If you'll be drinking, arrange a ride or pick a designated driver ahead of time.</p>
+    <p><b>Visiting Acadia?</b> Get a park entrance pass and check the separate timed vehicle reservation if you want to drive up Cadillac Mountain. Save the QR code before you go and check the park's page for the 2027 release schedule.</p>
+    <p><b>Camping?</b> Blackwoods is closest to Bar Harbor, Seawall is on the quiet side, and Schoodic Woods is across the bay. Under the current schedule, most July sites open January 1, 2027, at 10 a.m. Eastern on Recreation.gov. The rest open 14 days before arrival. Near the party, look at Narrows Too or Timberland Acres.</p>
+  </section>
+
+</div></div>
+<footer><span>See you in Maine! · July 24, 2027</span></footer>
+</main>
+
+<script>
+{
+  /* ====== PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE ====== */
+  const RSVP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzPYJWSPK6ZWOMCTwRSVabAab__v5mKLorO-d6H3Hwnq7S189QmUT3le3Y0j_4HOVX3Tg/exec';
+  /* ============================================================ */
+
+  const glance = [
+    ['Trenton','0-10 min','Closest to party, budget lodging'],
+    ['Ellsworth','10-15 min','Chain hotels, hotel points, families'],
+    ['North MDI','15-20 min','Quieter island stay, shorter drive'],
+    ['Bar Harbor','20-25 min','Walkable downtown, Acadia'],
+    ['Northeast Harbor','~30 min','Quiet, upscale harbor village'],
+    ['Southwest Harbor','35-40 min','Quieter trails, longer getaway']
+  ];
+  document.getElementById('glance').innerHTML = glance.map(([t,d,b]) =>
+    `<li><span class="t">${t}</span><span class="d">${d} to party</span><span class="b">Best for: ${b}</span></li>`).join('');
+
+  const land = [
+    ['Catch sunrise on Cadillac','Watch the sun come up over the coast. <a href="https://www.nps.gov/thingstodo/drive-cadillac-mountain.htm" target="_blank" rel="noopener">Check Summit Road vehicle reservations.</a>'],
+    ['Explore Acadia','Hike in the park or bike the carriage roads.<br>Bike rentals: <a href="https://barharborbike.com/" target="_blank" rel="noopener">Bar Harbor Bicycle Shop</a>'],
+    ['Walk to Bar Island','Cross the natural gravel land bridge from downtown at low tide. <a href="https://www.nps.gov/thingstodo/hike-bar-island-trail.htm" target="_blank" rel="noopener">Check tide times</a> and plan to be back before the bar is covered.'],
+    ['Stroll the Shore Path','Follow the waterfront, then browse the shops and cafés along Main Street.']
+  ];
+  const water = [
+    ['Go whale watching','Head out on a whale-watching cruise.'],
+    ['Take a lobster boat tour','See how Maine lobster is caught.<br>Tour option: <a href="https://lululobsterboat.com/" target="_blank" rel="noopener">LuLu Lobster Boat</a>'],
+    ['Kayak Frenchman Bay','Paddle along the coast and take in views of the islands and shoreline.'],
+    ['Rent a canoe','Spend some time paddling away.<br>Rental rates: <a href="https://www.nationalparkcanoerental.com/rates.html" target="_blank" rel="noopener">National Park Canoe &amp; Kayak</a>']
+  ];
+  const render = list => list.map(([t,d]) => `<h3>${t}</h3><p>${d}</p>`).join('');
+  document.getElementById('todo-list').innerHTML = render(land.concat(water));
+
+  /* tabs via #hash */
+  const views = ['home','rsvp','travel','stay','todo','know'];
+  const show = () => {
+    const v = views.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
+    views.forEach(n => document.getElementById('v-'+n).classList.toggle('on', n === v));
+    document.querySelectorAll('.tab').forEach(a => a.dataset.v === v ? a.setAttribute('aria-current','page') : a.removeAttribute('aria-current'));
+    const cur = document.querySelector('.tab[aria-current]'); if (cur) cur.scrollIntoView({block:'nearest',inline:'center'});
+    window.scrollTo(0,0);
+  };
+  window.addEventListener('hashchange', show); show();
+
+  /* RSVP form */
+  const form = document.getElementById('rsvp-form');
+  const val = n => (form.querySelector(`[name="${n}"]:checked`) || {}).value || '';
+  const fFood = document.getElementById('f-food'), fDiet = document.getElementById('f-diet');
+  form.addEventListener('change', e => {
+    if (e.target.name === 'attending') {
+      const yes = val('attending') === 'Yes';
+      fFood.classList.toggle('hide', !yes); fDiet.classList.toggle('hide', !yes);
+    }
+    const f = e.target.closest('.field'); if (f) f.classList.remove('bad');
+  });
+  document.getElementById('name').addEventListener('input', () => document.getElementById('f-name').classList.remove('bad'));
+
+  const btn = document.getElementById('send'), sendErr = document.getElementById('send-err');
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const attending = val('attending'), food = val('food');
+    let ok = true;
+    if (!name) { document.getElementById('f-name').classList.add('bad'); ok = false; }
+    if (!attending) { document.getElementById('f-attend').classList.add('bad'); ok = false; }
+    if (attending === 'Yes' && !food) { fFood.classList.add('bad'); ok = false; }
+    if (!ok) { form.querySelector('.bad').scrollIntoView({behavior:'smooth',block:'center'}); return; }
+
+    const data = new URLSearchParams({
+      name, attending,
+      food: attending === 'Yes' ? food : '',
+      diet: attending === 'Yes' ? document.getElementById('diet').value.trim() : ''
+    });
+    btn.disabled = true; btn.textContent = 'Sending…'; sendErr.style.display = 'none';
+    let preview = !RSVP_ENDPOINT, failed = false;
+    try {
+      if (!preview) await fetch(RSVP_ENDPOINT, { method:'POST', mode:'no-cors', body:data });
+    } catch (err) {
+      /* the claude.ai preview blocks outside requests, so treat that as preview mode */
+      if (/github\.io$/.test(location.hostname)) failed = true; else preview = true;
+    }
+    if (failed) {
+      btn.disabled = false; btn.textContent = 'Send RSVP';
+      sendErr.textContent = 'Something went wrong sending your RSVP. Please try again.';
+      sendErr.style.display = 'block'; return;
+    }
+    btn.disabled = false; btn.textContent = 'Send RSVP';
+    const first = name.split(/[ ,&]/)[0];
+    document.getElementById('thanks-title').textContent = attending === 'Yes' ? 'See you in Maine!' : 'We’ll miss you!';
+    document.getElementById('thanks-msg').textContent = attending === 'Yes'
+      ? `Thanks, ${first}! We can't wait to celebrate with you on July 24.`
+      : `Thanks for letting us know, ${first}. You'll be with us in spirit!`;
+    document.getElementById('preview-note').classList.toggle('hide', !preview);
+    form.classList.add('hide'); document.getElementById('thanks').classList.remove('hide');
+  });
+  document.getElementById('again').addEventListener('click', () => {
+    form.reset(); fFood.classList.add('hide'); fDiet.classList.add('hide');
+    form.classList.remove('hide'); document.getElementById('thanks').classList.add('hide');
+  });
+}
+</script>
+</body>
+</html>
