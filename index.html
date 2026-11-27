@@ -89,6 +89,8 @@ textarea{min-height:110px;resize:vertical}
 .field.bad .err{display:block}
 .field.bad input[type=text]{border-color:var(--red)}
 .label{font-weight:700;margin:0 0 8px}
+.menu{text-align:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:18px 4px 8px;margin-bottom:22px}
+.menu-title{font:400 24px/1.2 "Libre Bodoni",serif;color:var(--red);margin-bottom:8px}
 .opt{font-weight:400;color:var(--muted)}
 .person{background:#fff;border:1px solid #d9e3ea;border-radius:8px;padding:16px;margin-bottom:12px;display:grid;gap:14px}
 .p-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -216,8 +218,12 @@ footer span{background:var(--cream);padding:6px 14px}
       </fieldset>
 
       <div class="field hide" id="f-people">
-        <p class="label">Are you interested in Lobster or Meat BBQ?</p>
-        <p class="hint">Select one or both for each person. Please include shellfish allergies.</p>
+        <div class="menu">
+          <p class="menu-title">On the menu</p>
+          <p>We're planning on <b>Maine lobster, BBQ, clams, Maine red hot dogs, and veggies!</b></p>
+          <p>Please let us know if anyone in your party has dietary restrictions or food allergies, especially shellfish.</p>
+        </div>
+        <p class="label">Who's coming?</p>
         <div id="people"></div>
         <button type="button" class="add" id="add-guest">+ Add guest/partner/kids</button>
       </div>
@@ -358,10 +364,6 @@ footer span{background:var(--cream);padding:6px 14px}
       <div class="p-head"><span class="p-title">${isGuest ? 'Guest/Partner/Kids Names' : esc(nameEl.value.trim() || 'You')}</span>
         ${isGuest ? '<button type="button" class="remove">Remove</button>' : ''}</div>
       ${isGuest ? `<div class="p-field"><label for="gn${id}">Full name</label><input type="text" id="gn${id}" class="g-name"><p class="err">Please enter a name.</p></div>` : ''}
-      <div class="p-field food"><div class="choices">
-        <label class="choice box"><input type="checkbox" value="Maine Lobster"><span>Maine Lobster</span></label>
-        <label class="choice box"><input type="checkbox" value="Meat BBQ"><span>Meat BBQ</span></label>
-      </div><p class="err">Please pick at least one.</p></div>
       <div class="p-field"><label for="dt${id}">Dietary restrictions or allergies <span class="opt">(optional)</span></label><input type="text" id="dt${id}" class="g-diet"></div>`;
     people.appendChild(el);
     if (isGuest) el.querySelector('.g-name').focus();
@@ -395,10 +397,8 @@ footer span{background:var(--cream);padding:6px 14px}
     if (att === 'Yes') {
       people.querySelectorAll('.person').forEach(p => {
         const gName = p.dataset.guest ? p.querySelector('.g-name').value.trim() : name;
-        const food = [...p.querySelectorAll('.food input:checked')].map(i => i.value).join(', ');
         if (p.dataset.guest && !gName) { p.querySelector('.g-name').closest('.p-field').classList.add('bad'); ok = false; }
-        if (!food) { p.querySelector('.food').classList.add('bad'); ok = false; }
-        guests.push({ name: gName, food, diet: p.querySelector('.g-diet').value.trim() });
+        guests.push({ name: gName, food: '', diet: p.querySelector('.g-diet').value.trim() });
       });
     } else if (att === 'No') {
       guests = [name, ...document.getElementById('others').value.split(',').map(s => s.trim()).filter(Boolean)]
